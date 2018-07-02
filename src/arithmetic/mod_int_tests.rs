@@ -340,3 +340,9 @@ fn test_random() {
     assert!(rnd.value < BigInt::one());
     assert_eq!(BigInt::one(), rnd.modulus);
 }
+
+#[test]
+#[should_panic(expected="the upper_bound must be greater than zero")]
+fn test_random_failing() {
+    ModInt::gen_modint(ModInt::zero());
+}

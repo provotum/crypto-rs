@@ -282,6 +282,8 @@ pub trait RandModInt {
 
 impl RandModInt for ModInt {
     fn gen_modint(upper_bound: ModInt) -> ModInt {
+        assert!(upper_bound.value > BigInt::zero(), "the upper_bound must be greater than zero");
+
         let mut rng = rand::thread_rng();
         let rnd_val = rng.gen_bigint_range(&BigInt::zero(), &upper_bound.value);
 
