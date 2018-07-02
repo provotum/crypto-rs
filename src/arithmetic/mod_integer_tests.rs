@@ -1,10 +1,10 @@
-use ::arithmetic::mod_integer::ModInteger;
 use ::arithmetic::mod_integer::From;
+use ::arithmetic::mod_integer::ModInteger;
 use ::num::bigint::BigInt;
 use ::num::One;
+use ::num::traits::Pow;
 use ::num::Zero;
-
-use std::ops::{Neg};
+use std::ops::Neg;
 
 #[test]
 fn test_equal() {
@@ -55,7 +55,7 @@ fn test_negation_zero_modulus() {
 fn test_negation_non_zero_modulus() {
     let zero: ModInteger = ModInteger {
         value: BigInt::zero(),
-        modulus: BigInt::from(11)
+        modulus: BigInt::from(11),
     };
 
     // 0 mod 11 = 0
@@ -67,7 +67,7 @@ fn test_negation_non_zero_modulus() {
 
     let one: ModInteger = ModInteger {
         value: BigInt::from(23),
-        modulus: BigInt::from(11)
+        modulus: BigInt::from(11),
     };
 
     // 23 mod 11 = 1
@@ -78,7 +78,7 @@ fn test_negation_non_zero_modulus() {
 
     let two: ModInteger = ModInteger {
         value: BigInt::from(2),
-        modulus: BigInt::from(11)
+        modulus: BigInt::from(11),
     };
 
     // 2 mod 11 = 2
@@ -107,17 +107,16 @@ fn test_add() {
     // test overflow of mod round
     let nine: ModInteger = ModInteger {
         value: BigInt::from(9),
-        modulus: BigInt::from(11)
+        modulus: BigInt::from(11),
     };
     let three: ModInteger = ModInteger {
         value: BigInt::from(3),
-        modulus: BigInt::from(11)
+        modulus: BigInt::from(11),
     };
 
     let twelve_one = nine + three;
     assert_eq!(BigInt::from(1), twelve_one.value);
     assert_eq!(BigInt::from(11), twelve_one.modulus);
-
 }
 
 #[test]
@@ -136,6 +135,7 @@ fn test_sub() {
     assert_eq!(BigInt::zero(), zero.value);
     assert_eq!(BigInt::zero(), zero.modulus);
 }
+
 #[test]
 fn test_mul() {
     let one: ModInteger = ModInteger::one();
@@ -147,11 +147,11 @@ fn test_mul() {
 
     let two: ModInteger = ModInteger::from_value_modulus(
         BigInt::from(2),
-        BigInt::from(4)
+        BigInt::from(4),
     );
     let three: ModInteger = ModInteger::from_value_modulus(
         BigInt::from(3),
-        BigInt::from(4)
+        BigInt::from(4),
     );
 
     // 2 * 3 mod 4 = 2
@@ -164,15 +164,115 @@ fn test_mul() {
 fn test_div() {
     let one: ModInteger = ModInteger::from_value_modulus(
         BigInt::from(23),
-        BigInt::from(11)
+        BigInt::from(11),
     );
 
     let two: ModInteger = ModInteger::from_value_modulus(
         BigInt::from(2),
-        BigInt::from(0)
+        BigInt::from(0),
     );
 
     let div = one / two;
     assert_eq!(BigInt::from(6), div.value);
     assert_eq!(BigInt::from(11), div.modulus);
+
+
+    let one2: ModInteger = ModInteger::from_value_modulus(
+        BigInt::from(23),
+        BigInt::from(11),
+    );
+    let two2: ModInteger = ModInteger::from_value_modulus(
+        BigInt::from(2),
+        BigInt::from(0),
+    );
+
+    let zero: ModInteger = one2 - ModInteger::one();
+    let zero_res: ModInteger = zero / two2;
+    assert_eq!(BigInt::from(0), zero_res.value);
+    assert_eq!(BigInt::from(11), zero_res.modulus);
+}
+
+#[test]
+fn test_rem() {
+    let one: ModInteger = ModInteger::from_value_modulus(
+        BigInt::from(21),
+        BigInt::from(4),
+    );
+
+    let four: ModInteger = ModInteger::from_value_modulus(
+        BigInt::from(4),
+        BigInt::from(4),
+    );
+
+    let result = one % four;
+    assert_eq!(BigInt::from(1), result.value);
+    assert_eq!(BigInt::from(4), result.modulus);
+}
+
+#[test]
+fn test_negative_rem() {
+    let neg_one: ModInteger = ModInteger::from_value_modulus(
+        BigInt::from(-21),
+        BigInt::from(4),
+    );
+
+    let four: ModInteger = ModInteger::from_value_modulus(
+        BigInt::from(4),
+        BigInt::from(4),
+    );
+
+    let result = neg_one % four;
+    assert_eq!(BigInt::from(-1), result.value);
+    assert_eq!(BigInt::from(4), result.modulus);
+}
+
+#[test]
+fn test_pow_zero_modulus() {
+    let two: ModInteger = ModInteger::from_value_modulus(
+        BigInt::from(2),
+        BigInt::from(0),
+    );
+
+    let four: ModInteger = ModInteger::from_value_modulus(
+        BigInt::from(4),
+        BigInt::from(0),
+    );
+
+    let result = two.pow(four);
+    assert_eq!(BigInt::from(16), result.value);
+    assert_eq!(BigInt::from(0), result.modulus);
+}
+
+#[test]
+fn test_pow() {
+    let two: ModInteger = ModInteger::from_value_modulus(
+        BigInt::from(2),
+        BigInt::from(20),
+    );
+
+    let four: ModInteger = ModInteger::from_value_modulus(
+        BigInt::from(4),
+        BigInt::from(20),
+    );
+
+    let result = two.pow(four);
+    assert_eq!(BigInt::from(16), result.value);
+    assert_eq!(BigInt::from(20), result.modulus);
+}
+
+#[test]
+fn test_pow_with_modulus() {
+    let two: ModInteger = ModInteger::from_value_modulus(
+        BigInt::from(2),
+        BigInt::from(5),
+    );
+
+    let four: ModInteger = ModInteger::from_value_modulus(
+        BigInt::from(4),
+        BigInt::from(5),
+    );
+
+    let result = two.pow(four);
+    assert_eq!(BigInt::from(1), result.value);
+    assert_eq!(BigInt::from(5), result.modulus);
 }

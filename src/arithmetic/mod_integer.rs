@@ -64,7 +64,7 @@ impl Finalize for ModInteger {
 
 impl PartialEq<ModInteger> for ModInteger {
     fn eq(&self, other: &ModInteger) -> bool {
-        // TODO: finalize
+        // TODO: find a way to finalize
         self.value.eq(&other.value) && self.modulus.eq(&other.modulus)
     }
 
@@ -181,7 +181,7 @@ impl Div<ModInteger> for ModInteger {
         if self.modulus.eq(&zero) {
             self.value = self.value.div(rhs.value)
         } else {
-            let inv: Option<BigInt> = mod_inverse::modinverse(rhs.value.clone(), self.modulus.clone());
+            let inv: Option<BigInt> = mod_inverse::mod_inverse(rhs.value.clone(), self.modulus.clone());
 
             let inverse: BigInt;
             match inv {
@@ -226,13 +226,12 @@ impl Pow<ModInteger> for ModInteger {
 
             self.value = pow(self.value, usize_val)
         } else {
-            let inv: BigInt = rhs.value.modpow(&BigInt::one().neg(), &self.modulus);
+            let inv: BigInt = rhs.value.modpow(&rhs.value, &self.modulus);
 
-            self.value = self.value.mul(inv);
-            self.value = self.value.rem(self.modulus.clone());
+            self.value = inv;
         }
 
-        self
+        self.finalize()
     }
 }
 
