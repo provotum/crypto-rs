@@ -7,6 +7,7 @@ use ::num::pow::Pow;
 use ::num::ToPrimitive;
 use ::num::Zero;
 use ::rand;
+use ::std::clone::Clone;
 use ::std::cmp::Ordering;
 use ::std::cmp::PartialEq;
 use ::std::cmp::PartialOrd;
@@ -24,6 +25,20 @@ pub struct ModInt {
     pub modulus: BigInt,
 }
 
+impl Clone for ModInt {
+    fn clone(&self) -> Self {
+        ModInt {
+            value: self.value.clone(),
+            modulus: self.modulus.clone(),
+        }
+    }
+
+    fn clone_from(&mut self, source: &Self) {
+        self.value = source.value.clone();
+        self.modulus = source.modulus.clone();
+    }
+}
+
 pub trait From {
     /// Create a ModInt with the given value and modulus.
     fn from_value_modulus(value: BigInt, modulus: BigInt) -> ModInt;
@@ -34,17 +49,21 @@ pub trait From {
 
 impl From for ModInt {
     fn from_value_modulus(value: BigInt, modulus: BigInt) -> ModInt {
-        ModInt {
+        let non_normalized = ModInt {
             value,
             modulus,
-        }
+        };
+
+        non_normalized.normalize()
     }
 
     fn from_value(value: BigInt) -> ModInt {
-        ModInt {
+        let non_normalized = ModInt {
             value,
             modulus: BigInt::zero(),
-        }
+        };
+
+        non_normalized.normalize()
     }
 }
 
@@ -260,7 +279,7 @@ impl Pow<ModInt> for ModInt {
 
             self.value = pow(self.value, usize_val)
         } else {
-            let inv: BigInt = rhs.value.modpow(&rhs.value, &self.modulus);
+            let inv: BigInt = self.value.modpow(&rhs.value, &self.modulus);
 
             self.value = inv;
         }
@@ -274,7 +293,6 @@ impl Pow<ModInt> for ModInt {
 ///
 /// Generate random numbers
 pub trait RandModInt {
-
     /// Generate random ModInts with the given upper_bound.
     /// Note, that the returned ModInt has a modulus set equal to the given upper_bound.
     fn gen_modint(upper_bound: ModInt) -> ModInt;
