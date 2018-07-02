@@ -1,0 +1,8 @@
+[package]
+name = "crypto"
+version = "0.1.0"
+authors = ["Raphael Matile <raphael.matile@gmail.com>"]
+
+[dependencies]
+num = "0.1"
+rand = "0.4"
