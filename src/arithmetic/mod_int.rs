@@ -279,6 +279,11 @@ impl Pow<ModInt> for ModInt {
 
             self.value = pow(self.value, usize_val)
         } else {
+            // Check whether order of the base divides the order of the exponent.
+            // Otherwise, the result is not well-defined.
+            if ! rhs.modulus.rem(self.modulus.clone()).eq(&zero) {
+                panic!("Order of base is not compatible to the order of the exponent.")
+            }
             let inv: BigInt = self.value.modpow(&rhs.value, &self.modulus);
 
             self.value = inv;
