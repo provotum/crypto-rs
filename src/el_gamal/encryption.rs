@@ -6,6 +6,7 @@ use ::num::traits::Pow;
 use ::num::Zero;
 use ::num::One;
 
+#[derive(Debug, Clone)]
 pub struct PublicKey {
     pub p: ModInt,
     pub q: ModInt,
@@ -13,6 +14,7 @@ pub struct PublicKey {
     pub g: ModInt,
 }
 
+#[derive(Debug, Clone)]
 pub struct PrivateKey {
     pub p: ModInt,
     pub q: ModInt,

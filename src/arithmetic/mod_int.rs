@@ -2,16 +2,18 @@ use ::arithmetic::mod_inverse;
 use ::num::bigint::BigInt;
 use ::num::bigint::RandBigInt;
 use ::num::One;
-use ::num::pow;
+use ::num;
 use ::num::pow::Pow;
 use ::num::ToPrimitive;
 use ::num::Zero;
+use num::Num;
 use ::rand;
 use ::std::clone::Clone;
 use ::std::cmp::Ordering;
 use ::std::cmp::PartialEq;
 use ::std::cmp::PartialOrd;
 use ::std::ops::{Add, Div, Mul, Neg, Rem, Sub};
+use std::fmt::{Formatter, Result, Display, Debug};
 
 // TODO
 //use std::cmp::Ordering::{self, Less, Greater, Equal};
@@ -45,6 +47,8 @@ pub trait From {
 
     /// Create a ModInt with the given value and a zero modulus.
     fn from_value(value: BigInt) -> ModInt;
+
+    fn from_hex_string(hex_string: String, modulus: BigInt) -> ModInt;
 }
 
 impl From for ModInt {
@@ -61,6 +65,17 @@ impl From for ModInt {
         let non_normalized = ModInt {
             value,
             modulus: BigInt::zero(),
+        };
+
+        non_normalized.normalize()
+    }
+
+    fn from_hex_string(hex_string: String, modulus: BigInt) -> ModInt {
+        let value = BigInt::from_str_radix(&hex_string.as_str(), 16);
+
+        let non_normalized = ModInt {
+            value: value.unwrap(),
+            modulus
         };
 
         non_normalized.normalize()
@@ -100,9 +115,9 @@ impl PartialEq<ModInt> for ModInt {
 
             let normalized_val = _val.rem(_mod);
 
-            return normalized_val.eq(&other.value) && self.modulus.eq(&other.modulus);
+            return normalized_val.eq(&other.value);
         } else {
-            return self.value.eq(&other.value) && self.modulus.eq(&other.modulus);
+            return self.value.eq(&other.value);
         }
     }
 
@@ -281,7 +296,7 @@ impl Pow<ModInt> for ModInt {
                 None => panic!("Failed to convert BigInt to usize")
             }
 
-            self.value = pow(self.value, usize_val)
+            self.value = num::pow(self.value, usize_val)
         } else {
             // Check whether order of the base divides the order of the exponent.
             // Otherwise, the result is not well-defined.
@@ -295,6 +310,18 @@ impl Pow<ModInt> for ModInt {
         }
 
         self.normalize()
+    }
+}
+
+impl Display for ModInt {
+    fn fmt(&self, f: &mut Formatter) -> Result {
+        write!(f, "(val: {}, mod: {})", self.value, self.modulus)
+    }
+}
+
+impl Debug for ModInt {
+    fn fmt(&self, f: &mut Formatter) -> Result {
+        write!(f, "(val: {}, mod: {})", self.value, self.modulus)
     }
 }
 
@@ -565,11 +592,11 @@ mod mod_int_tests {
     fn test_invalid_div_modulus() {
         let one: ModInt = ModInt::from_value_modulus(
             BigInt::one(),
-            BigInt::from(5)
+            BigInt::from(5),
         );
         let zero: ModInt = ModInt::from_value_modulus(
             BigInt::zero(),
-            BigInt::from(5)
+            BigInt::from(5),
         );
 
         one / zero;
@@ -669,7 +696,7 @@ mod mod_int_tests {
     }
 
     #[test]
-    #[should_panic(expected="the upper_bound must be greater than zero")]
+    #[should_panic(expected = "the upper_bound must be greater than zero")]
     fn test_random_failing() {
         ModInt::gen_modint(ModInt::zero());
     }
