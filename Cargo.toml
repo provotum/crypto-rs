@@ -6,3 +6,6 @@ authors = ["Raphael Matile <raphael.matile@gmail.com>"]
 [dependencies]
 num = "0.1"
 rand = "0.4"
+rustc-serialize = "0.3"
+sha1 = { version = "0.6.0", features = ["std"] }
+sha2 = "0.7.1"
