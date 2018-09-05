@@ -1,4 +1,4 @@
-extern crate crypto;
+extern crate crypto_rs;
 
 extern crate num;
 
