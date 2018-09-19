@@ -1,18 +1,18 @@
 use ::arithmetic::mod_inverse;
-use ::num::bigint::BigInt;
-use ::num::bigint::RandBigInt;
-use ::num::One;
-use ::num;
-use ::num::pow::Pow;
-use ::num::ToPrimitive;
-use ::num::Zero;
+use num::bigint::BigInt;
+use num::bigint::RandBigInt;
+use num::One;
+use num;
+use num::pow::Pow;
+use num::ToPrimitive;
+use num::Zero;
 use num::Num;
-use ::rand;
-use ::std::clone::Clone;
-use ::std::cmp::Ordering;
-use ::std::cmp::PartialEq;
-use ::std::cmp::PartialOrd;
-use ::std::ops::{Add, Div, Mul, Neg, Rem, Sub};
+use rand;
+use std::clone::Clone;
+use std::cmp::Ordering;
+use std::cmp::PartialEq;
+use std::cmp::PartialOrd;
+use std::ops::{Add, Div, Mul, Neg, Rem, Sub};
 use std::fmt::{Formatter, Result, Display, Debug};
 
 // TODO

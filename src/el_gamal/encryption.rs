@@ -2,9 +2,9 @@ use ::arithmetic::mod_int::From;
 use ::arithmetic::mod_int::ModInt;
 use ::arithmetic::mod_int::RandModInt;
 use ::el_gamal::ciphertext::CipherText;
-use ::num::traits::Pow;
-use ::num::Zero;
-use ::num::One;
+use num::traits::Pow;
+use num::Zero;
+use num::One;
 
 #[derive(Debug, Clone)]
 pub struct PublicKey {

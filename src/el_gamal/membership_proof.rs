@@ -3,7 +3,7 @@ use ::arithmetic::mod_int::RandModInt;
 use ::el_gamal::ciphertext::CipherText;
 use ::el_gamal::encryption::{PublicKey};
 use arithmetic::mod_int::From;
-use ::num::bigint::BigInt;
+use num::bigint::BigInt;
 use num::{Zero};
 use num::traits::Pow;
 use std::ops::Div;
