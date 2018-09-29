@@ -5,7 +5,7 @@ use ::el_gamal::encryption::{PublicKey};
 use arithmetic::mod_int::From;
 use num::bigint::BigInt;
 use num::{Zero};
-use num::traits::Pow;
+use num::traits::pow::Pow;
 use std::ops::Div;
 use std::ops::Mul;
 use std::ops::Neg;

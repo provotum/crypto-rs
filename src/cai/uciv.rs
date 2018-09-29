@@ -11,15 +11,19 @@ use ::el_gamal::encryption::PublicKey;
 use ::el_gamal::ciphertext::CipherText;
 use ::el_gamal::serializer::Serializer;
 
-/// Secret UCIV Information (x1, x2, ..., xn)
+/// Secret UCIV Information `(x1, x2, ..., xn)`.
+/// This information is specific to a particular voter.
+/// Each `xn` is further tight to the n-th voting option.
 #[derive(Clone)]
-struct PreImageSet {
+pub struct PreImageSet {
     pub pre_images: Vec<ModInt>
 }
 
-/// Public UCIV Information (y1, y2, ..., yn)
+/// Public UCIV Information `(y1, y2, ..., yn)`.
+/// This information is specific to a particular voter.
+/// Each `yn` is further tight to the n-th voting option.
 #[derive(Clone)]
-struct ImageSet {
+pub struct ImageSet {
     pub images: Vec<ModInt>
 }
 
@@ -27,7 +31,7 @@ impl ImageSet {
     /// Creates an ImageSet `(y1, y2, ..., yn)` by applying the following
     /// arithmetic operation to each element of the given PreImageSet `(x1, x2, ..., xn)`:
     ///
-    /// ```
+    /// ```markdown
     /// (y1, y2, ..., yn) = ( F(x1), F(x2), ..., F(xn) )
     ///
     /// (y1, y2, ..., yn) = ( generator^x1, generator^x2, ..., generator^xn)
@@ -62,21 +66,32 @@ impl ImageSet {
     }
 }
 
-struct CaiProof {
+/// Cast-as-Intended proof
+pub struct CaiProof {
     s1_options: Vec<ModInt>,
     s2_options: Vec<ModInt>,
-    c1_options: Vec<ModInt>,
-    c2_options: Vec<ModInt>,
     h1_options: Vec<ModInt>,
     h2_options: Vec<ModInt>,
-
-    a_options: Vec<ModInt>,
-    b_options: Vec<ModInt>,
 
     h: ModInt
 }
 
 impl CaiProof {
+
+    /// Create a new Cast-as-Intended Proof.
+    ///
+    /// - public_key: The public key of the election system
+    /// - cipher_text: The cipher text for which to create the proof
+    /// - pre_image_set: The voter and voting option dependent secret set of pre-images
+    /// - image_set: The voter and voting option dependent public set of images
+    /// - chosen_vote_idx: The index of the chosen vote within the set of available voting options
+    /// - voting_options: The set of available voting options
+    ///
+    /// # Panics
+    ///
+    /// Panics if the amount of pre-images, images and available voting options are not equal.
+    /// In addition, panics if the chosen vote index is out-of-bound of the available set of
+    /// voting options.
     pub fn new(public_key: PublicKey, cipher_text: CipherText, pre_image_set: PreImageSet, image_set: ImageSet, chosen_vote_idx: usize, voting_options: Vec<ModInt>) -> Self {
         assert_eq!(pre_image_set.pre_images.len(), image_set.images.len(), "The amount of pre-images and images must be equal");
         assert_eq!(pre_image_set.pre_images.len(), voting_options.len(), "The amount of pre-images must be equal to the amount of voting options");
@@ -86,8 +101,6 @@ impl CaiProof {
         // equal to the number of voting options
         let mut s1_options: Vec<ModInt> = vec![ModInt::zero(); pre_image_set.pre_images.len()];
         let mut s2_options: Vec<ModInt> = vec![ModInt::zero(); pre_image_set.pre_images.len()];
-        let mut c1_options: Vec<ModInt> = vec![ModInt::zero(); pre_image_set.pre_images.len()];
-        let mut c2_options: Vec<ModInt> = vec![ModInt::zero(); pre_image_set.pre_images.len()];
         let mut h1_options: Vec<ModInt> = vec![ModInt::zero(); pre_image_set.pre_images.len()];
         let mut h2_options: Vec<ModInt> = vec![ModInt::zero(); pre_image_set.pre_images.len()];
 
@@ -118,8 +131,6 @@ impl CaiProof {
                 // the specific values for each voting options
                 let c1_i = public_key.g.clone().pow(s1_i.clone()).mul(c1.clone().pow(h1_i.clone().neg()));
                 let c2_i = public_key.h.clone().pow(s1_i.clone()).mul((c2.clone().div(public_key.g.clone().pow(voting_options[i].clone()))).pow(h1_i.clone().neg()));
-                c1_options[i] = c1_i.clone();
-                c2_options[i] = c2_i.clone();
 
                 let a_i = ModInt::gen_modint(public_key.q.clone());
                 a_options[i] = a_i.clone();
@@ -141,8 +152,6 @@ impl CaiProof {
 
                 let c1_j = public_key.g.clone().pow(b_j.clone());
                 let c2_j = public_key.h.clone().pow(b_j.clone());
-                c1_options[j] = c1_j.clone();
-                c2_options[j] = c2_j.clone();
 
                 let r_j = public_key.g.clone().pow(s2_j).mul(image_set.images[j].clone().pow(h2_j.clone().neg()));
 
@@ -179,16 +188,18 @@ impl CaiProof {
         CaiProof {
             s1_options,
             s2_options,
-            c1_options,
-            c2_options,
             h1_options,
             h2_options,
-            a_options,
-            b_options,
             h
         }
     }
 
+    /// Verify this proof for validity.
+    ///
+    /// - public_key: The public key of the election system
+    /// - cipher_text: The cipher text for which to create the proof
+    /// - image_set: The voter and voting option dependent public set of images
+    /// - voting_options: The set of available voting options
     pub fn verify(&self, public_key: PublicKey, cipher_text: CipherText, image_set: ImageSet, voting_options: Vec<ModInt>) -> bool {
         let c1 = cipher_text.big_g;
         let c2 = cipher_text.big_h;
