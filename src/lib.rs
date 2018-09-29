@@ -8,6 +8,7 @@ extern crate sha2;
 #[macro_use]
 extern crate serde_derive;
 extern crate serde;
+extern crate serde_json;
 
 /// Adds support for modular arithmetic within a cyclic field of integers.
 pub mod arithmetic;

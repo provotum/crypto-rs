@@ -5,6 +5,9 @@ use ::el_gamal::ciphertext::CipherText;
 use num::traits::Pow;
 use num::Zero;
 use num::One;
+use std::fs::File;
+use std::io::Read;
+use serde_json;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct PublicKey {
@@ -12,6 +15,31 @@ pub struct PublicKey {
     pub q: ModInt,
     pub h: ModInt,
     pub g: ModInt,
+}
+
+impl PublicKey {
+    /// Create a PublicKey based its string representation at a specific path.
+    ///
+    /// - `public_key_file_name`: The file name of the public key.
+    ///                           Must reside in the same directory as the binary is launched.
+    ///
+    pub fn new(public_key_file_name: &str) -> Self {
+        // Read the input file to string.
+        let mut file = File::open("./".to_owned() + public_key_file_name).unwrap();
+        let mut contents = String::new();
+        file.read_to_string(&mut contents).unwrap();
+
+        let public_key: PublicKey = match serde_json::from_str(&contents) {
+            Ok(public_key_data) => {
+                public_key_data
+            },
+            Err(e) => {
+                panic!("Failed to transform file {:?} into PublicKey: {:?}", file, e);
+            }
+        };
+
+        public_key
+    }
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -22,6 +50,30 @@ pub struct PrivateKey {
     pub x: ModInt,
 }
 
+impl PrivateKey {
+    /// Create a PrivateKey based its string representation at a specific path.
+    ///
+    /// - `private_key_file_name`: The file name of the private key.
+    ///                            Must reside in the same directory as the binary is launched.
+    ///
+    pub fn new(private_key_file_name: &str) -> Self {
+        // Read the input file to string.
+        let mut file = File::open("./".to_owned() + private_key_file_name).unwrap();
+        let mut contents = String::new();
+        file.read_to_string(&mut contents).unwrap();
+
+        let private_key: PrivateKey = match serde_json::from_str(&contents) {
+            Ok(private_key_data) => {
+                private_key_data
+            },
+            Err(e) => {
+                panic!("Failed to transform file {:?} into PrivatKey: {:?}", file, e);
+            }
+        };
+
+        private_key
+    }
+}
 
 pub fn encrypt(public_key: &PublicKey, message: ModInt) -> CipherText {
     let random: ModInt = ModInt::gen_modint(public_key.q.clone());
