@@ -38,26 +38,18 @@ impl ImageSet {
     /// ```
     ///
     /// - generator: The generator of the cyclic group used also during encryption of the vote
-    /// - chosen_vote_idx: The index of the vote when mapped to the pre_image_set
     /// - pre_image_set: A number of pre-images equal to the number of voting options available
     ///                  which are specific to a particular voter.
     ///
-    pub fn new(generator: ModInt, chosen_vote_idx: usize, pre_image_set: PreImageSet) -> Self {
+    pub fn new(generator: ModInt, pre_image_set: PreImageSet) -> Self {
         let mut vec = vec![];
 
         // apply g^x as one-way function
-        let mut cntr: usize = 0;
         for pre_image in pre_image_set.pre_images.iter() {
             // If modulus is not equal, then we will end up with a different one after the exponentiation
             assert_eq!(pre_image.modulus.clone(), generator.modulus.clone(), "Modulus of pre-image and generator must be equal");
 
-            if cntr == chosen_vote_idx {
-                vec.push(ModInt::zero());
-            } else {
-                vec.push(generator.clone().pow(pre_image.clone()));
-            }
-
-            cntr += 1;
+            vec.push(generator.clone().pow(pre_image.clone()));
         }
 
         ImageSet {
@@ -274,7 +266,7 @@ mod membership_proof_test {
             ]
         };
 
-        let image_set = ImageSet::new(pub_key.g.clone(), chosen_vote_idx, pre_image_set.clone());
+        let image_set = ImageSet::new(pub_key.g.clone(), pre_image_set.clone());
 
         let proof = CaiProof::new(
             pub_key.clone(),
