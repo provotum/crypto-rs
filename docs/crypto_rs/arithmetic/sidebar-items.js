@@ -1,0 +1,1 @@
+initSidebarItems({"mod":[["mod_int","Modular arithmetic within a cyclic field"],["mod_inverse","Perform the inverse operation in modular arithmetic"]]});
