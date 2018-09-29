@@ -47,7 +47,8 @@ impl ImageSet {
         // apply g^x as one-way function
         for pre_image in pre_image_set.pre_images.iter() {
             // If modulus is not equal, then we will end up with a different one after the exponentiation
-            assert_eq!(pre_image.modulus.clone(), generator.modulus.clone(), "Modulus of pre-image and generator must be equal");
+            // TODO: check this
+            //assert_eq!(pre_image.modulus.clone(), generator.modulus.clone(), "Modulus of pre-image and generator must be equal");
 
             vec.push(generator.clone().pow(pre_image.clone()));
         }
