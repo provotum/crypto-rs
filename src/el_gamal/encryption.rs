@@ -6,7 +6,7 @@ use num::traits::Pow;
 use num::Zero;
 use num::One;
 use std::fs::File;
-use std::io::Read;
+use std::io::{Read, Write};
 use serde_json;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -40,6 +40,19 @@ impl PublicKey {
 
         public_key
     }
+
+    /// Write this public key to a file with the given path.
+    ///
+    /// - `public_key_file_name`: The file name of the public key.
+    ///                           Must reside in the same directory as the binary is launched.
+    ///
+    pub fn to_file(&self, public_key_file_name: &str) {
+        // Read the input file to string.
+        let mut file = File::create("./".to_owned() + public_key_file_name).unwrap();
+
+        let public_key_str = serde_json::to_string_pretty(&self).unwrap();
+        file.write(public_key_str.as_bytes()).unwrap();
+    }
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -72,6 +85,19 @@ impl PrivateKey {
         };
 
         private_key
+    }
+
+    /// Write this private key to a file with the given path.
+    ///
+    /// - `private_key_file_name`: The file name of the private key.
+    ///                           Must reside in the same directory as the binary is launched.
+    ///
+    pub fn to_file(&self, private_key_file_name: &str) {
+        // Read the input file to string.
+        let mut file = File::create("./".to_owned() + private_key_file_name).unwrap();
+
+        let private_key_str = serde_json::to_string_pretty(&self).unwrap();
+        file.write(private_key_str.as_bytes()).unwrap();
     }
 }
 
@@ -153,5 +179,43 @@ mod encryption_test {
         let result_message = decrypt(priv_key, c);
 
         assert_eq!(ModInt::one().value, result_message.value);
+    }
+
+    #[test]
+    fn write_read_public_key() {
+        let pub_key: PublicKey = PublicKey {
+            p: ModInt::from_value_modulus(BigInt::from(5), BigInt::zero()),
+            q: ModInt::from_value_modulus(BigInt::from(2), BigInt::zero()),
+            h: ModInt::from_value_modulus(BigInt::from(32), BigInt::from(5)),
+            g: ModInt::from_value_modulus(BigInt::from(2), BigInt::from(5))
+        };
+
+        pub_key.to_file("public_key.json");
+
+        let read_pub_key = PublicKey::new("public_key.json");
+
+        assert_eq!(read_pub_key.p, pub_key.p);
+        assert_eq!(read_pub_key.q, pub_key.q);
+        assert_eq!(read_pub_key.h, pub_key.h);
+        assert_eq!(read_pub_key.g, pub_key.g);
+    }
+
+    #[test]
+    fn write_read_private_key() {
+        let priv_key: PrivateKey = PrivateKey {
+            p: ModInt::from_value_modulus(BigInt::from(5), BigInt::zero()),
+            q: ModInt::from_value_modulus(BigInt::from(2), BigInt::zero()),
+            g: ModInt::from_value_modulus(BigInt::from(2), BigInt::zero()),
+            x: ModInt::from_value_modulus(BigInt::from(5), BigInt::zero())
+        };
+
+        priv_key.to_file("private_key.json");
+
+        let read_priv_key = PrivateKey::new("private_key.json");
+
+        assert_eq!(read_priv_key.p, priv_key.p);
+        assert_eq!(read_priv_key.q, priv_key.q);
+        assert_eq!(read_priv_key.g, priv_key.g);
+        assert_eq!(read_priv_key.x, priv_key.x);
     }
 }
