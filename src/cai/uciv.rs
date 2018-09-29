@@ -14,7 +14,7 @@ use ::el_gamal::serializer::Serializer;
 /// Secret UCIV Information `(x1, x2, ..., xn)`.
 /// This information is specific to a particular voter.
 /// Each `xn` is further tight to the n-th voting option.
-#[derive(Clone)]
+#[derive(Clone, Serialize, Deserialize)]
 pub struct PreImageSet {
     pub pre_images: Vec<ModInt>
 }
@@ -22,7 +22,7 @@ pub struct PreImageSet {
 /// Public UCIV Information `(y1, y2, ..., yn)`.
 /// This information is specific to a particular voter.
 /// Each `yn` is further tight to the n-th voting option.
-#[derive(Clone)]
+#[derive(Clone, Serialize, Deserialize)]
 pub struct ImageSet {
     pub images: Vec<ModInt>
 }
