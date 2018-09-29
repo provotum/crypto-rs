@@ -14,6 +14,9 @@ use std::cmp::PartialEq;
 use std::cmp::PartialOrd;
 use std::ops::{Add, Div, Mul, Neg, Rem, Sub};
 use std::fmt::{Formatter, Result, Display, Debug};
+use serde;
+use std::result::Result as stdResult;
+
 
 // TODO
 //use std::cmp::Ordering::{self, Less, Greater, Equal};
@@ -26,6 +29,25 @@ pub struct ModInt {
     /// The modulus.
     pub modulus: BigInt,
 }
+
+impl serde::Serialize for ModInt {
+    fn serialize<S>(&self, serializer: S) -> stdResult<S::Ok, S::Error> where
+        S: serde::Serializer {
+
+        (&self.value, &self.modulus).serialize(serializer)
+    }
+}
+
+impl<'de> serde::Deserialize<'de> for ModInt {
+    fn deserialize<D>(deserializer: D) -> stdResult<Self, D::Error>
+        where D: serde::Deserializer<'de>
+    {
+        let (value, modulus) = serde::Deserialize::deserialize(deserializer)?;
+        Ok(ModInt {value, modulus})
+    }
+}
+
+
 
 impl Clone for ModInt {
     fn clone(&self) -> Self {
@@ -75,7 +97,7 @@ impl From for ModInt {
 
         let non_normalized = ModInt {
             value: value.unwrap(),
-            modulus
+            modulus,
         };
 
         non_normalized.normalize()
