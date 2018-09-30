@@ -60,6 +60,7 @@ impl ImageSet {
 }
 
 /// Cast-as-Intended proof
+#[derive(Clone, Serialize, Deserialize)]
 pub struct CaiProof {
     s1_options: Vec<ModInt>,
     s2_options: Vec<ModInt>,
@@ -225,10 +226,11 @@ impl CaiProof {
 
 
 #[cfg(test)]
-mod membership_proof_test {
+mod uciv_proof_test {
 
     use ::el_gamal::encryption::PublicKey;
     use ::el_gamal::encryption::{encrypt};
+    use ::el_gamal::ciphertext::CipherText;
     use ::arithmetic::mod_int::ModInt;
     use arithmetic::mod_int::From;
     use ::num::bigint::BigInt;
@@ -239,7 +241,7 @@ mod membership_proof_test {
     use ::cai::uciv::{CaiProof, ImageSet, PreImageSet};
 
     #[test]
-    pub fn test_one_or_proof() {
+    pub fn test_valid_proof() {
         //h := (g^x) mod p
         //2 := 2^5 mod 5
         let pub_key: PublicKey = PublicKey {
@@ -286,5 +288,61 @@ mod membership_proof_test {
         );
 
         assert!(is_proven);
+    }
+
+    #[test]
+    pub fn test_invalid_proof() {
+        //h := (g^x) mod p
+        //2 := 2^5 mod 5
+        let pub_key: PublicKey = PublicKey {
+            p: ModInt::from_value_modulus(BigInt::from(5), BigInt::zero()),
+            q: ModInt::from_value_modulus(BigInt::from(2), BigInt::zero()),
+            h: ModInt::from_value_modulus(BigInt::from(32), BigInt::from(5)),
+            g: ModInt::from_value_modulus(BigInt::from(2), BigInt::from(5))
+        };
+
+        let mut voting_options = Vec::new();
+        voting_options.push(ModInt::zero());
+        voting_options.push(ModInt::one());
+
+        let message: ModInt = ModInt {
+            value: BigInt::one(),
+            modulus: BigInt::from(5) // must be equal to the value p of the public key
+        };
+        let cipher_text = encrypt(&pub_key, message.clone());
+        let chosen_vote_idx = 1;
+
+        let pre_image_set = PreImageSet {
+            pre_images: vec![
+                ModInt::from_value_modulus(BigInt::from(1), BigInt::from(5)),
+                ModInt::from_value_modulus(BigInt::from(0), BigInt::from(5))
+            ]
+        };
+
+        let image_set = ImageSet::new(pub_key.g.clone(), pre_image_set.clone());
+
+        let proof = CaiProof::new(
+            pub_key.clone(),
+            cipher_text.clone(),
+            pre_image_set.clone(),
+            image_set.clone(),
+            chosen_vote_idx,
+            voting_options.clone()
+        );
+
+        let fake_cipher_text = CipherText {
+            big_g: ModInt::from_value_modulus(BigInt::from(1), BigInt::from(0)),
+            big_h: ModInt::from_value_modulus(BigInt::from(2), BigInt::from(0)),
+            random: ModInt::from_value_modulus(BigInt::from(3), BigInt::from(0))
+        };
+
+        let is_proven = proof.verify(
+            pub_key.clone(),
+            fake_cipher_text.clone(),
+            image_set.clone(),
+            voting_options.clone()
+        );
+
+        assert!(!is_proven);
     }
 }

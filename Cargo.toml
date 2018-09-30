@@ -1,6 +1,6 @@
 [package]
 name = "crypto-rs"
-version = "0.1.0"
+version = "0.1.1"
 authors = ["Raphael Matile <raphael.matile@gmail.com>"]
 
 [dependencies]
