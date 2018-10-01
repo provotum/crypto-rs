@@ -14,7 +14,7 @@ use std::vec::Vec;
 use std::ops::Add;
 use ::el_gamal::serializer::Serializer;
 
-#[derive(Clone, Debug)]
+#[derive(Eq, PartialEq, Serialize, Deserialize, Hash, Clone, Debug)]
 pub struct MembershipProof {
     s_responses: Vec<ModInt>,
     c_responses: Vec<ModInt>,

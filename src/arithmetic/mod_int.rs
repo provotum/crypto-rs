@@ -23,6 +23,7 @@ use std::result::Result as stdResult;
 
 
 /// An integer with modular operations.
+#[derive(Hash)]
 pub struct ModInt {
     /// The value.
     pub value: BigInt,

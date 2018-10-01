@@ -60,7 +60,7 @@ impl ImageSet {
 }
 
 /// Cast-as-Intended proof
-#[derive(Clone, Serialize, Deserialize)]
+#[derive(Eq, PartialEq, Debug, Clone, Hash, Serialize, Deserialize)]
 pub struct CaiProof {
     s1_options: Vec<ModInt>,
     s2_options: Vec<ModInt>,
