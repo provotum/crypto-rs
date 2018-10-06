@@ -1,7 +1,30 @@
 [package]
 name = "crypto-rs"
-version = "0.1.1"
+version = "0.1.2"
 authors = ["Raphael Matile <raphael.matile@gmail.com>"]
+license = "Apache-2.0"
+
+# A short blurb about the package. This is not rendered in any format when
+# uploaded to crates.io (aka this is not markdown).
+description = "Additivie Homomorphic ElGamal encryption with range zero-knowledge proof and universal cast-as-intended proofs"
+
+# These URLs point to more information about the package. These are
+# intended to be webviews of the relevant data, not necessarily compatible
+# with VCS tools and the like.
+# documentation = "..."
+# homepage = "..."
+repository = "https://github.com/provotum/crypto-rs"
+
+# This points to a file under the package root (relative to this `Cargo.toml`).
+# The contents of this file are stored and indexed in the registry.
+# crates.io will render this file and place the result on the crate's page.
+readme = "README.md"
+
+# This is a list of up to five keywords that describe this crate. Keywords
+# are searchable on crates.io, and you may choose any words that would
+# help someone find this crate.
+keywords = ["uciv", "universal cast-as-intended", "e-voting", "ElGamal", "homomorphic"]
+
 
 [dependencies]
 num = {version = "0.2", features = ["serde", "rand"]}
